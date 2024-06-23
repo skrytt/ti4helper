@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TI4 Helper</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet"> 
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="rowitem name">Name</div>
+        <div class="rowitem number">1</div>
+        <div class="rowitem strategy">Leadership</div>
+      </div>
+      <div class="row">
+        <div class="rowitem name inactive">-</div>
+        <div class="rowitem number inactive">2</div>
+        <div class="rowitem strategy inactive">Diplomacy</div>
+      </div>
+      <div class="row" id="active-player">
+        <div class="rowitem name">He</div>
+        <script type="text/javascript">
+          var blink = document.getElementById('active-player');
+          setInterval(function() {
+              blink.style.opacity = (blink.style.opacity == 1 ? 0.7 : 1);
+          }, 750);
+        </script>
+        <div class="rowitem number">3</div>
+        <div class="rowitem strategy">Politics</div>
+      </div>
+      <div class="row">
+        <div class="rowitem name">Blåhaj</div>
+        <div class="rowitem number">4</div>
+        <div class="rowitem strategy">Construction</div>
+      </div>
+      <div class="row">
+        <div class="rowitem name inactive">-</div>
+        <div class="rowitem number inactive">5</div>
+        <div class="rowitem strategy inactive">Trade</div>
+      </div>
+      <div class="row">
+        <div class="rowitem name">Name</div>
+        <div class="rowitem number">6</div>
+        <div class="rowitem strategy">Warfare</div>
+      </div>
+      <div class="row">
+        <div class="rowitem name">Name</div>
+        <div class="rowitem number">7</div>
+        <div class="rowitem strategy">Technology</div>
+      </div>
+      <div class="row">
+        <div class="rowitem name">Name</div>
+        <div class="rowitem number">8</div>
+        <div class="rowitem strategy">Imperial</div>
+      </div>
+  </body>
+</html>
