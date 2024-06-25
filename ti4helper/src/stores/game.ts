@@ -43,7 +43,7 @@ interface IPlayerData {
   factionName: string;
 }
 
-enum StrategyCard {
+export enum StrategyCard {
   Leadership = "Leadership",
   Diplomacy = "Diplomacy",
   Politics = "Politics",
@@ -94,7 +94,23 @@ export const useGameStore = defineStore('game', () => {
     roundData.pop();
   }
 
-  function assignRoundStrategyCardToPlayer(strategyCardName: string, playerIndex: number) {
+  function assignStrategyCardToPlayer() {
+    console.log("In assignStrategyCardToPlayer");
+    const assignStrategyCardForm = document.getElementById("assignStrategyCardForm");
+    if (assignStrategyCardForm === null) { return; }
+
+    // Get strategy card from radio button inputs
+    const strategyCardInput = assignStrategyCardForm.querySelector('input[name="strategyCard"]:checked') as HTMLInputElement | null;;
+    if (strategyCardInput === null) { return; }
+    const strategyCardName = strategyCardInput.value;
+
+    // Get player from radio button inputs
+    const playerNameInput = assignStrategyCardForm.querySelector('input[name="playerName"]:checked') as HTMLInputElement | null;;
+    if (playerNameInput === null) { return; }
+    const playerName = playerNameInput.value;
+    const playerIndex = playerData.findIndex((p) => p.name == playerName);
+    if (playerIndex == -1) throw new Error(`assignStrategyCardToPlayer: Couldn't find player '${playerName}' in playerData`);
+
     var strategyCard: StrategyCard;
     switch(strategyCardName) {
       case StrategyCard.Leadership: strategyCard = StrategyCard.Leadership; break;
@@ -109,7 +125,11 @@ export const useGameStore = defineStore('game', () => {
     };
     
     const round = roundData.length;
-    roundData[round].strategyAssignment.set(strategyCard, playerIndex);
+    if (round <= 0) {
+      throw new Error(`assignStrategyCardToPlayer: Round is 0 - can't assign strategy cards in Setup phase`);
+    }
+    roundData[round-1].strategyAssignment.set(strategyCard, playerIndex);
+    roundData[round-1].strategyPopState.set(strategyCard, StrategyPopState.Unspent);
   }
 
   function assignNewSpeaker(playerIndex: number) {
@@ -153,14 +173,17 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function addPlayer() {
+    console.log("In addPlayer");
     const addPlayerForm = document.getElementById("addPlayerForm");
     if (addPlayerForm === null) { return; }
 
+    // Get player name from text input
     const playerNameInput = addPlayerForm.querySelector('input[name="playerName"]') as HTMLInputElement | null;
     if (playerNameInput === null) { return; }
     const playerName = playerNameInput.value;
     if (playerName.length == 0) { return; }
 
+    // Get faction name from radio button inputs
     const factionNameInput = addPlayerForm.querySelector('input[name="factionName"]:checked') as HTMLInputElement | null;;
     if (factionNameInput === null) { return; }
     const factionName = factionNameInput.value;
@@ -176,5 +199,5 @@ export const useGameStore = defineStore('game', () => {
   }
 
   return { round, phase, players, playerData, roundData, 
-    advancePhase, undoAdvancePhase, addPlayer, removePlayer, assignRoundStrategyCardToPlayer, assignNewSpeaker};
+    advancePhase, undoAdvancePhase, addPlayer, removePlayer, assignStrategyCardToPlayer, assignNewSpeaker};
 })

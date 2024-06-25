@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useGameStore, Faction } from '@/stores/game';
+import { useGameStore, Faction, StrategyCard } from '@/stores/game';
 
 const game = useGameStore();
 
@@ -16,7 +16,7 @@ defineProps<{
     <p>Current Round: {{ game.round }}</p>
     <p>Player Count: {{ game.players }}</p>
     <p>Player Data: {{ game.playerData }}</p>
-
+    <p>Round Data: {{ game.roundData }}</p>
     <hr />
 
     <h2>[GENERAL] Game Phase Transition Buttons</h2>
@@ -42,15 +42,24 @@ defineProps<{
       <input type="submit" value="Add Player">
     </form>
 
-    <h2>[GENERAL] Strategy Colours</h2>
-    <span class="leadership">Leadership</span><br />
-    <span class="diplomacy">Diplomacy</span><br />
-    <span class="politics">Politics</span><br />
-    <span class="construction">Construction</span><br />
-    <span class="trade">Trade</span><br />
-    <span class="warfare">Warfare</span><br />
-    <span class="technology">Technology</span><br />
-    <span class="imperial">Imperial</span><br />
+    <h2>[STRATEGY] Assign Strategy Cards Form</h2>
+    <form id="assignStrategyCardForm" @submit.prevent="onSubmit" @submit="game.assignStrategyCardToPlayer()">
+      <p>Player:</p>
+      <ul>
+        <li v-for="playerName in game.playerData.map((p) => p.name)">
+          <input type="radio" :id="playerName" name="playerName" :value="playerName">
+          <label :for="playerName">{{playerName}}</label>
+        </li>
+      </ul>
+      <p>Card:</p>
+      <ul>
+        <li v-for="strategyCard in Object.keys(StrategyCard).filter(key => isNaN(Number(key)))">
+          <input type="radio" :id="strategyCard" name="strategyCard" :value="strategyCard">
+          <label :for="strategyCard">{{strategyCard}}</label>
+        </li>
+      </ul>
+      <input type="submit" value="Assign Strategy Card">
+    </form>
   </div>
 </template>
 
