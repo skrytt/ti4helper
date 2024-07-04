@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import SetupPhase from './components/SetupPhase.vue';
+import ActionPhase from './components/ActionPhase.vue';
+import StrategyPhase from './components/StrategyPhase.vue';
+import { useGameStore } from '@/stores/game';
+
+const game = useGameStore();
 </script>
 
 <template>
-  <main>
-    <div class="wrapper">
-      <HelloWorld msg="Hello World" />
-    </div>
-  </main>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <div class="container">
+  <SetupPhase v-if="game.phase == 'Setup'" />
+  <StrategyPhase v-if="game.phase == 'Strategy'" />
+  <ActionPhase v-if="game.phase == 'Action'" />
+  </div>
 </template>
 
 <style scoped>
-body {
-  /* This app is designed for a fixed screen ratio/size */
-  width: 1920px;
-  height: 1080px;
+.container {
+  width: 100vw;
+  height: 100vh;
 }
 </style>

@@ -32,7 +32,7 @@ export enum Faction {
   "The Argent Flight",
   "The Empyrean",
   "The Mahact Gene-Sorcerers",
-  "The Naaz-Rohk Alliance",
+  "The Naaz-Rohka Alliance",
   "The Nomad",
   "The Titans of Ul",
   "The Vuil'Raith Cabal",
