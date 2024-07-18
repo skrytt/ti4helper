@@ -1,10 +1,55 @@
 <script setup lang="ts">
 import { useGameStore, Faction, StrategyCard } from '@/stores/game';
+import { computed, onMounted, onUnmounted } from 'vue';
 
 const game = useGameStore();
 
+function handleKeyDown(e: KeyboardEvent) {
+  switch(e.key) {
+    case "ArrowRight":
+      console.log("Advance turn");
+      game.advanceTurn();
+      break;
+    case "ArrowLeft":
+      console.log("Back a turn");
+      game.previousTurn();
+      break;
+    case "s":
+      console.log("Strategy toggle");
+      game.toggleStrategyPopped();
+      break;
+    case "p":
+      console.log("Pass toggle");
+      game.togglePass();
+      break;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
+
+const currentPlayerIndex = computed(() => game.roundData[game.roundData.length-1].turnOrder[game.turnOrderIndex]);
+const currentPlayerData = computed(() => (currentPlayerIndex.value !== null) ? game.playerData[currentPlayerIndex.value] : null);
+const currentPlayerName = computed(() => (currentPlayerData.value !== null) ? currentPlayerData.value.name : null);
+const currentPlayerFactionName = computed(() => (currentPlayerData.value !== null) ? currentPlayerData.value.factionName : null);
+const currentPlayerStrategyCard = computed(() => (currentPlayerIndex.value !== null) ? StrategyCard[game.roundData[game.roundData.length-1].strategyAssignmentReverse.get(currentPlayerIndex.value) as number] : 0);
+const currentPlayerStrategyCardPopState = computed(() => (currentPlayerIndex.value !== null) ? game.roundData[game.roundData.length-1].playerStrategyPopState.get(currentPlayerIndex.value) as boolean : 0);
+const currentPlayerPassState = computed(() => (currentPlayerIndex.value !== null) ? game.roundData[game.roundData.length-1].playerPassState.get(currentPlayerIndex.value) as boolean : 0);
+
+const nextPlayerTurnOrderIndices = computed(() => Array.from(Array(game.players-1).keys()).map((i) => (i+game.turnOrderIndex+1) % game.players));
+const nextPlayerIndices = computed(() => nextPlayerTurnOrderIndices.value.map((i) => game.roundData[game.roundData.length-1].turnOrder[i]));
+const nextPlayerData = computed(() => nextPlayerIndices.value.map((i) => game.playerData[i]));
+const nextPlayerNames = computed(() => nextPlayerData.value.map((p) => p.name));
+const nextPlayerStrategyCards = computed(() => nextPlayerIndices.value.map((i) => StrategyCard[game.roundData[game.roundData.length-1].strategyAssignmentReverse.get(i) as number]));
+const nextPlayerStrategyCardPopStates = computed(() => nextPlayerIndices.value.map((i) => game.roundData[game.roundData.length-1].playerStrategyPopState.get(i) as boolean));
+const nextPlayerPassStates = computed(() => nextPlayerIndices.value.map((i) => game.roundData[game.roundData.length-1].playerPassState.get(i) as boolean));
+
 defineProps<{
-}>()
+}>();
 </script>
 
 <template>
@@ -20,39 +65,38 @@ defineProps<{
     <div class="containerColumn containerColumnMid">
       <div class="activePlayerContainer">
         <div class="activePlayerContainerInner">
-          <h1>The Hamburglar</h1>
-          <h2 class="warfare">Warfare</h2>
+          <h1>{{ currentPlayerName }} / {{ currentPlayerFactionName }}</h1>
+          <h2 v-if="currentPlayerPassState">
+            Passed
+          </h2>
+          <h2 v-else-if="currentPlayerStrategyCardPopState">
+            {{ currentPlayerStrategyCard }}&nbsp;(Spent)
+          </h2>
+          <h2 v-else :class="currentPlayerStrategyCard.toLowerCase()">
+            {{ currentPlayerStrategyCard }}
+          </h2>
         </div>
       </div>
       <div class="upcomingPlayersContainer">
         <div class="upcomingPlayersNamesContainer">
-          <span class="upcomingPlayerPad">Ronald</span>
-          <span class="upcomingPlayerPad">Grimace</span>
-          <span class="upcomingPlayerPad">Birdie</span>
-          <span class="upcomingPlayerPad">Sundae</span>
-          <span class="upcomingPlayerPad">Mayor McCheese</span>
+          <span v-for="name in nextPlayerNames" class="upcomingPlayerPad">{{ name }}</span>
         </div>
         <div class="upcomingPlayersPassStatusesContainer">
-          <span class="upcomingPlayerPad">PASS</span>
-          <span class="upcomingPlayerPad">&nbsp;</span>
-          <span class="upcomingPlayerPad">&nbsp;</span>
-          <span class="upcomingPlayerPad">PASS</span>
-          <span class="upcomingPlayerPad">&nbsp;</span>
+          <span v-for="passState in nextPlayerPassStates" class="upcomingPlayerPad">
+            <span v-if="passState">PASS</span>
+            <span v-else>&nbsp;</span>
+          </span>
         </div>
         <div class="upcomingPlayersStrategyCardsContainer">
-          <span class="upcomingPlayerPad">Leadership (Spent)</span>
-          <span class="upcomingPlayerPad">Construction (Spent)</span>
-          <span class="upcomingPlayerPad imperial">Imperial</span>
-          <span class="upcomingPlayerPad">Technology (Spent)</span>
-          <span class="upcomingPlayerPad diplomacy">Diplomacy</span>
+          <span v-for="(strategyCard, index) in nextPlayerStrategyCards" class="upcomingPlayerPad">
+            <span v-if="nextPlayerStrategyCardPopStates[index]">{{ strategyCard }}&nbsp;(Spent)</span>
+            <span v-else>{{ strategyCard }}</span>
+          </span>
         </div>
       </div>
     </div>
     <div class="containerColumn containerColumnRight">
       <div class="lowerTextContainer">
-        <p>Round 1: 36m 25s</p>
-        <p>Round 2: 48m 10s</p>
-        <p>Round 3: 5m 50s</p>
       </div>
     </div>
   </div>
@@ -144,6 +188,7 @@ defineProps<{
   align-items: end;
   padding: 10px 20px 10px 10px;
   color: var(--vt-c-white-soft);
+  white-space: nowrap;
 }
 .upcomingPlayersPassStatusesContainer {
   background-color: var(--vt-c-white-soft);
@@ -153,6 +198,7 @@ defineProps<{
   flex-grow: 0;
   align-items:center;
   padding: 10px;
+  min-width: 75px;
 }
 .upcomingPlayersStrategyCardsContainer {
   display: flex;
@@ -160,6 +206,7 @@ defineProps<{
   flex: 1;
   align-items: start;
   padding: 10px 10px 10px 20px;
+  white-space: nowrap;
 }
 .upcomingPlayersNamesContainer span {
   font-weight: 600;

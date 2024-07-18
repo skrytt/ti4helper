@@ -34,8 +34,8 @@ defineProps<{
     <input type="submit" value="Assign Strategy Card">
     </form>
     <ol>
-      <li v-for="(strategyCard, playerIndex) in game.roundData[game.round-1].strategyAssignment.entries()">
-        <p><span :class="strategyCard[0].toLowerCase()"> {{ strategyCard[0] }}</span> - {{ game.playerData[playerIndex].name }} / {{ game.playerData[playerIndex].factionName }}</p>
+      <li v-for="[strategyCard, playerIndex] in game.roundData[game.round-1].strategyAssignment.entries()">
+        <p><span :class="StrategyCard[strategyCard].toLowerCase()"> {{ StrategyCard[strategyCard] }}</span> - {{ game.playerData[playerIndex].name }} / {{ game.playerData[playerIndex].factionName }}</p>
       </li>
     </ol>
   </div>

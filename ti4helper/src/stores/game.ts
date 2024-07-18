@@ -13,7 +13,7 @@ export enum GamePhase {
 
 // This app assumes TI4 + PoK because that's what my group uses :)
 export enum Faction {
-  "The Arborec" = 1,
+  "The Arborec" = 0,
   "The Barony of Letnev",
   "The Clan of Saar",
   "The Embers of Muaat",
@@ -44,27 +44,23 @@ interface IPlayerData {
 }
 
 export enum StrategyCard {
-  Leadership = "Leadership",
-  Diplomacy = "Diplomacy",
-  Politics = "Politics",
-  Construction = "Construction",
-  Trade = "Trade",
-  Warfare = "Warfare",
-  Technology = "Technology",
-  Imperial = "Imperial",
-}
-
-enum StrategyPopState {
-  Unspent = 1,
-  Active,
-  Spent,
+  Leadership = 0,
+  Diplomacy,
+  Politics,
+  Construction,
+  Trade,
+  Warfare,
+  Technology,
+  Imperial,
 }
 
 interface IRoundData {
   speakerPlayer: number | null;
-  strategyAssignment: Map<StrategyCard, number>;
-  strategyPopState: Map<StrategyCard, StrategyPopState>;
-  turnOrder: Array<number> | null;
+  strategyAssignment: Map<number, number>;
+  strategyAssignmentReverse: Map<number, number>;
+  playerStrategyPopState: Map<number, boolean>;
+  turnOrder: Array<number>;
+  playerPassState: Map<number, boolean>;
 }
 
 export const useGameStore = defineStore('game', () => {
@@ -74,19 +70,23 @@ export const useGameStore = defineStore('game', () => {
   const playerData: Reactive<IPlayerData[]> = reactive([]);
   const roundData: Reactive<IRoundData[]> = reactive([]);
 
-  // TODO set on transition Strategy -> Action Phase based on computed turn order
-  const currentTurnPlayer = ref(-1);
 
   const players = computed(() => playerData.length);
   const round = computed(() => roundData.length);
 
+  // TODO set to 0 on transition Strategy -> Action Phase
+  // TODO implement function to advance to next turn
+  // TODO implement function to return to previous turn
+  const turnOrderIndex = ref(0);
 
   function addRound() {
     roundData.push({
       speakerPlayer: roundData.length > 0 ? roundData[roundData.length-1].speakerPlayer : null,
       strategyAssignment: new Map(),
-      strategyPopState: new Map(),
-      turnOrder: null,
+      strategyAssignmentReverse: new Map(),
+      playerStrategyPopState: new Map(),
+      turnOrder: new Array,
+      playerPassState: new Map(),
     })
   }
 
@@ -111,36 +111,59 @@ export const useGameStore = defineStore('game', () => {
     const playerIndex = playerData.findIndex((p) => p.name == playerName);
     if (playerIndex == -1) throw new Error(`assignStrategyCardToPlayer: Couldn't find player '${playerName}' in playerData`);
 
-    var strategyCard: StrategyCard;
-    switch(strategyCardName) {
-      case StrategyCard.Leadership: strategyCard = StrategyCard.Leadership; break;
-      case StrategyCard.Diplomacy: strategyCard = StrategyCard.Diplomacy; break;
-      case StrategyCard.Politics: strategyCard = StrategyCard.Politics; break;
-      case StrategyCard.Construction: strategyCard = StrategyCard.Construction; break;
-      case StrategyCard.Trade: strategyCard = StrategyCard.Trade; break;
-      case StrategyCard.Warfare: strategyCard = StrategyCard.Warfare; break;
-      case StrategyCard.Technology: strategyCard = StrategyCard.Technology; break;
-      case StrategyCard.Imperial: strategyCard = StrategyCard.Imperial; break;
-      default: throw new Error(`game.assignStrategyCardToPlayer: Invalid strategy card name '${strategyCardName}'`);
-    };
-    
-    const round = roundData.length;
-    if (round <= 0) {
-      throw new Error(`assignStrategyCardToPlayer: Round is 0 - can't assign strategy cards in Setup phase`);
+    var strategyCard = -1;
+    const strategyCardEnumNames = Object.keys(StrategyCard).filter((v) => isNaN(Number(v)));
+    strategyCardEnumNames.forEach((key, index) => {
+      if (key == strategyCardName) {
+        strategyCard = index;
+      }
+    });
+    if (strategyCard == -1) {
+      throw new Error("assignStrategyCardToPlayer - unknown strategy card name");
     }
-    roundData[round-1].strategyAssignment.set(strategyCard, playerIndex);
-    roundData[round-1].strategyPopState.set(strategyCard, StrategyPopState.Unspent);
+    
+    const roundIndex = roundData.length-1;
+    if (roundIndex <= -1) {
+      throw new Error("assignStrategyCardToPlayer: Round is 0 - can't assign strategy cards in Setup phase");
+    }
+    roundData[roundIndex].strategyAssignment.set(strategyCard, playerIndex);
+    roundData[roundIndex].strategyAssignmentReverse.set(playerIndex, strategyCard);
+    roundData[roundIndex].playerStrategyPopState.set(playerIndex, false);
+    roundData[roundIndex].playerPassState.set(playerIndex, false);
   }
 
   function assignNewSpeaker(playerIndex: number) {
-    roundData[roundData.length-1].speakerPlayer = playerIndex;
+    const roundIndex = roundData.length-1;
+    roundData[roundIndex].speakerPlayer = playerIndex;
+  }
+
+  function setTurnOrder() {
+    const roundIndex = roundData.length-1;
+    const turnOrder: number[] = [];
+
+    const strategyCardEnumNames = Object.keys(StrategyCard).filter((v) => isNaN(Number(v)));
+    strategyCardEnumNames.forEach((key, index) => {
+      const playerIndex: number | undefined = roundData[roundIndex].strategyAssignment.get(index);
+      if (playerIndex != undefined) {
+        turnOrder.push(playerIndex);
+      }
+    });
+
+    roundData[roundIndex].turnOrder = turnOrder;
   }
 
   function advancePhase(newPhaseName: string) {
     var newPhase: GamePhase;
     switch(newPhaseName) {
-      case GamePhase.Strategy: newPhase = GamePhase.Strategy; break;
-      case GamePhase.Action: newPhase = GamePhase.Action; break;
+      case GamePhase.Strategy: 
+        newPhase = GamePhase.Strategy; 
+        break;
+      case GamePhase.Action: 
+        newPhase = GamePhase.Action;
+        setTurnOrder();
+        // Ensure we start with first player in turn order
+        turnOrderIndex.value = 0;
+        break;
       case GamePhase.Status: newPhase = GamePhase.Status; break;
       case GamePhase.Agenda: newPhase = GamePhase.Agenda; break;
       case GamePhase.Victory: newPhase = GamePhase.Victory; break;
@@ -198,6 +221,36 @@ export const useGameStore = defineStore('game', () => {
     playerData.splice(playerIndex, 1);
   }
 
-  return { round, phase, players, playerData, roundData, 
-    advancePhase, undoAdvancePhase, addPlayer, removePlayer, assignStrategyCardToPlayer, assignNewSpeaker};
+  function advanceTurn() {
+    turnOrderIndex.value = (turnOrderIndex.value+1) % players.value;
+  }
+
+  function previousTurn() {
+    turnOrderIndex.value = (((turnOrderIndex.value-1) % players.value) + players.value) % players.value;
+  }
+
+  function toggleStrategyPopped() {
+    const roundIndex = roundData.length-1;
+
+    // Don't allow a strategy toggle if the player has passed
+    const currentPassState: boolean = roundData[roundIndex].playerPassState.get(roundData[roundIndex].turnOrder[turnOrderIndex.value]) as boolean;
+    if (currentPassState) return;
+
+    const currentStrategyPoppedState: boolean = roundData[roundIndex].playerStrategyPopState.get(roundData[roundIndex].turnOrder[turnOrderIndex.value]) as boolean;
+    roundData[roundIndex].playerStrategyPopState.set(roundData[roundIndex].turnOrder[turnOrderIndex.value], !currentStrategyPoppedState);
+  }
+
+  function togglePass() {
+    const roundIndex = roundData.length-1;
+
+    // Don't allow a pass if the strategy card held by the player hasn't been spent
+    const currentStrategyPoppedState: boolean = roundData[roundIndex].playerStrategyPopState.get(roundData[roundIndex].turnOrder[turnOrderIndex.value]) as boolean;
+    if (!currentStrategyPoppedState) return;
+
+    const currentPassState: boolean = roundData[roundIndex].playerPassState.get(roundData[roundIndex].turnOrder[turnOrderIndex.value]) as boolean;
+    roundData[roundIndex].playerPassState.set(roundData[roundIndex].turnOrder[turnOrderIndex.value], !currentPassState);
+  }
+
+  return { round, phase, players, playerData, roundData, turnOrderIndex,
+    advancePhase, undoAdvancePhase, addPlayer, removePlayer, assignStrategyCardToPlayer, assignNewSpeaker, advanceTurn, previousTurn, toggleStrategyPopped, togglePass};
 })

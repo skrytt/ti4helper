@@ -18,11 +18,11 @@ body {
     "slnt" 0;
 }
 
-.leadership { color:hsla(0, 90%, 80%, 1); }
-.diplomacy { color: hsla(27, 90%, 80%, 100%); }
-.politics { color: hsla(54, 90%, 80%, 100%); }
-.construction { color: hsla(112, 90%, 80%, 1); }
-.trade { color: hsla(165, 90%, 80%, 1); }
-.warfare { color: hsla(193, 90%, 80%, 1); }
-.technology { color: hsla(230, 90%, 80%, 1); }
-.imperial { color: hsla(274, 90%, 80%, 1); }
+.leadership { color:hsla(0, 90%, 60%, 1); }
+.diplomacy { color: hsla(27, 90%, 60%, 100%); }
+.politics { color: hsla(54, 90%, 60%, 100%); }
+.construction { color: hsla(112, 60%, 80%, 1); }
+.trade { color: hsla(165, 90%, 60%, 1); }
+.warfare { color: hsla(193, 90%, 60%, 1); }
+.technology { color: hsla(230, 90%, 60%, 1); }
+.imperial { color: hsla(274, 90%, 60%, 1); }
