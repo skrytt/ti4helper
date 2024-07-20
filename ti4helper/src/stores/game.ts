@@ -94,7 +94,7 @@ export const useGameStore = defineStore('game', () => {
     roundData.pop();
   }
 
-  function assignStrategyCardToPlayer() {
+  function assignStrategyCardPick() {
     console.log("In assignStrategyCardToPlayer");
     const assignStrategyCardForm = document.getElementById("assignStrategyCardForm");
     if (assignStrategyCardForm === null) { return; }
@@ -121,15 +121,32 @@ export const useGameStore = defineStore('game', () => {
     if (strategyCard == -1) {
       throw new Error("assignStrategyCardToPlayer - unknown strategy card name");
     }
-    
+
     const roundIndex = roundData.length-1;
-    if (roundIndex <= -1) {
-      throw new Error("assignStrategyCardToPlayer: Round is 0 - can't assign strategy cards in Setup phase");
+
+    // Fail if player or strategy card already chosen (note: this doesnt work properly for games with multiple card picks per person right now)
+    if (roundData[roundIndex].strategyAssignment.get(strategyCard) !== undefined) {
+      console.log("assignStrategyCardToPlayer: Strategy card already chosen");
+      return;
     }
+    if (roundData[roundIndex].strategyAssignmentReverse.get(playerIndex) !== undefined) {
+      console.log("assignStrategyCardToPlayer: Player has already chosen a strategy card");
+      return;
+    } 
+    
     roundData[roundIndex].strategyAssignment.set(strategyCard, playerIndex);
     roundData[roundIndex].strategyAssignmentReverse.set(playerIndex, strategyCard);
     roundData[roundIndex].playerStrategyPopState.set(playerIndex, false);
     roundData[roundIndex].playerPassState.set(playerIndex, false);
+  }
+
+  function removeStrategyCardPick(strategyCard: number) {
+    console.log("In removeStrategyCardPick");
+
+    const roundIndex = roundData.length-1;
+    const playerIndex = roundData[roundIndex].strategyAssignment.get(strategyCard) as number;
+    roundData[roundIndex].strategyAssignment.delete(strategyCard);
+    roundData[roundIndex].strategyAssignmentReverse.delete(playerIndex);
   }
 
   function assignNewSpeaker(playerIndex: number) {
@@ -263,5 +280,5 @@ export const useGameStore = defineStore('game', () => {
   }
 
   return { round, phase, players, playerData, roundData, turnOrderIndex,
-    advancePhase, undoAdvancePhase, addPlayer, removePlayer, assignStrategyCardToPlayer, assignNewSpeaker, advanceTurn, previousTurn, toggleStrategyPopped, togglePass};
+    advancePhase, undoAdvancePhase, addPlayer, removePlayer, assignStrategyCardPick, removeStrategyCardPick, assignNewSpeaker, advanceTurn, previousTurn, toggleStrategyPopped, togglePass};
 })

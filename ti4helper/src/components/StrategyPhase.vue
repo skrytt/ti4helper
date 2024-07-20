@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { useGameStore, Faction, StrategyCard } from '@/stores/game';
+import { computed } from 'vue';
 
 const game = useGameStore();
+
+const allSelectionsMade = computed(() => game.roundData[game.roundData.length-1].strategyAssignment.size == game.players);
 
 defineProps<{
 }>()
@@ -10,7 +13,7 @@ defineProps<{
 <template>
   <h2>Assign Strategy Cards</h2>
   <div class="containerRow">
-    <form id="assignStrategyCardForm" @submit.prevent="onSubmit" @submit="game.assignStrategyCardToPlayer()">
+    <form id="assignStrategyCardForm" @submit.prevent="onSubmit" @submit="game.assignStrategyCardPick()">
       <div class="containerRow">
         <div>
           <p>Player:</p>
@@ -33,16 +36,20 @@ defineProps<{
     </div>
     <input type="submit" value="Assign Strategy Card">
     </form>
-    <ol>
+    <ul>
       <li v-for="[strategyCard, playerIndex] in game.roundData[game.round-1].strategyAssignment.entries()">
-        <p><span :class="StrategyCard[strategyCard].toLowerCase()"> {{ StrategyCard[strategyCard] }}</span> - {{ game.playerData[playerIndex].name }} / {{ game.playerData[playerIndex].factionName }}</p>
+        <span>
+          <button @click="game.removeStrategyCardPick(strategyCard)">Remove</button>
+          &nbsp;
+          <span :class="StrategyCard[strategyCard].toLowerCase()"> {{ StrategyCard[strategyCard] }}</span> - {{ game.playerData[playerIndex].name }} / {{ game.playerData[playerIndex].factionName }}
+        </span>
       </li>
-    </ol>
+    </ul>
   </div>
 
   <h2>Game Phase Transition Buttons</h2>
   <button @click="game.undoAdvancePhase()">Back to Setup Phase</button>
-  <button @click="game.advancePhase('Action')">Advance -> Action Phase</button>
+  <button :disabled="!allSelectionsMade" @click="game.advancePhase('Action')">Advance -> Action Phase</button>
   <hr />
 </template>
 

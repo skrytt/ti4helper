@@ -15,6 +15,7 @@ const game = useGameStore();
   <SetupPhase v-if="game.phase == 'Setup'" />
   <StrategyPhase v-if="game.phase == 'Strategy'" />
   <ActionPhase v-if="game.phase == 'Action'" />
+  <StatusPhase v-if="game.phase == 'Status'" />
   </div>
 </template>
 
