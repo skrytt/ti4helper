@@ -211,6 +211,17 @@ export const useGameStore = defineStore('game', () => {
     if (factionNameInput === null) { return; }
     const factionName = factionNameInput.value;
 
+    // Fail if the player name or faction name is already in the list
+    if (playerData.find((p) => p.name == playerName) !== undefined) {
+      console.log("addPlayer: Player already in list");
+      return;
+    }
+    // Fail if the player name or faction name is already in the list
+    if (playerData.find((p) => p.factionName == factionName) !== undefined) {
+      console.log("addPlayer: Faction already selected by another player");
+      return;
+    }
+
     playerData.push({
       name: playerName,
       factionName,

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useGameStore, Faction, StrategyCard } from '@/stores/game';
+import { ref } from 'vue';
 
 const game = useGameStore();
 
 defineProps<{
 }>()
+
 </script>
 
 <template>
@@ -23,15 +25,18 @@ defineProps<{
       <input type="submit" value="Add Player">
     </form>
     <ol>
-      <li v-for="playerData in game.playerData">
-        <p>{{ playerData.name }} / {{ playerData.factionName }}</p>
+      <li v-for="(playerData, index) in game.playerData">
+        <span>
+          <button @click="game.removePlayer(index)">Remove</button>
+          {{ playerData.name }} / {{ playerData.factionName }}
+        </span>
       </li>
     </ol>
   </div>
 
   <h2>Game Phase Transition Buttons</h2>
-  <button @click="game.advancePhase('Strategy')">Advance -> Strategy Phase</button>
-  <hr />
+  <button :disabled="game.players < 2" @click="game.advancePhase('Strategy')">Advance -> Strategy Phase</button>
+  <hr /> 
 
 </template>
 
