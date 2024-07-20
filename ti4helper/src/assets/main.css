@@ -26,3 +26,40 @@ body {
 .warfare { color: hsla(193, 90%, 60%, 1); }
 .technology { color: hsla(230, 90%, 60%, 1); }
 .imperial { color: hsla(274, 90%, 60%, 1); }
+
+button {
+  background-color: var(--vt-c-black-mute);
+  color: var(--vt-c-white-mute);
+  border: 0px;
+  font-family: inherit;
+  padding: 8px;
+  margin: 2px;
+}
+
+input {
+  background-color: var(--vt-c-black-mute);
+  color: var(--vt-c-white-mute);
+  border: 0px;
+  font-family: inherit;
+  padding: 8px;
+  margin: 2px;
+}
+
+input[type="radio"] {
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
+}
+
+input[type="radio"]+label {
+  background-color: var(--vt-c-black-mute);
+  color: var(--vt-c-white-mute);
+  border: 0px;
+  font-family: inherit;
+  padding: 4px;
+  margin: 2px; 
+}
+
+input[type="radio"]:checked+label {
+  background-color: var(--vt-c-indigo);
+}

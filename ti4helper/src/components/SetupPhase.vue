@@ -15,12 +15,10 @@ defineProps<{
       <label for="playerName">Player Name:</label><br />
       <input type="text" id="playerName" name="playerName"><br />
       <p>Faction:</p>
-      <ul>
-        <li v-for="factionName in Object.keys(Faction).filter(key => isNaN(Number(key)))">
+        <div v-for="factionName in Object.keys(Faction).filter(key => isNaN(Number(key)))">
           <input type="radio" :id="factionName" name="factionName" :value="factionName">
           <label :for="factionName">{{factionName}}</label>
-        </li>
-      </ul>
+        </div>
       <input type="submit" value="Add Player">
     </form>
     <ol>
@@ -35,7 +33,6 @@ defineProps<{
 
   <h2>Game Phase Transition Buttons</h2>
   <button :disabled="game.players < 2" @click="game.advancePhase('Strategy')">Advance -> Strategy Phase</button>
-  <hr /> 
 
 </template>
 
