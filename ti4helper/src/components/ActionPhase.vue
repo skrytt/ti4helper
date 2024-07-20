@@ -60,12 +60,13 @@ defineProps<{
         <p>Strategy Toggle (S)</p>
         <p>Pass Toggle (P)</p>
         <p>Next Turn (→)</p>
+        <button @click="game.undoAdvancePhase()">Back to Strategy Phase</button>
       </div>
     </div>
     <div class="containerColumn containerColumnMid">
       <div class="activePlayerContainer">
         <div class="activePlayerContainerInner">
-          <h1>{{ currentPlayerName }} / {{ currentPlayerFactionName }}</h1>
+          <h1 class="marquee">{{ currentPlayerName }}&nbsp;·&nbsp;{{ currentPlayerFactionName }}&nbsp;·&nbsp;{{ currentPlayerName }}&nbsp;·&nbsp;{{ currentPlayerFactionName }}&nbsp;·&nbsp;{{ currentPlayerName }}&nbsp;·&nbsp;{{ currentPlayerFactionName }}&nbsp;·&nbsp;</h1>
           <h2 v-if="currentPlayerPassState">
             Passed
           </h2>
@@ -79,7 +80,7 @@ defineProps<{
       </div>
       <div class="upcomingPlayersContainer">
         <div class="upcomingPlayersNamesContainer">
-          <span v-for="name in nextPlayerNames" class="upcomingPlayerPad">{{ name }}</span>
+          <span v-for="(name, index) in nextPlayerNames" class="upcomingPlayerPad" :class="{ upcomingUnpassedPlayerName: !nextPlayerPassStates[index] }">{{ name }}</span>
         </div>
         <div class="upcomingPlayersPassStatusesContainer">
           <span v-for="passState in nextPlayerPassStates" class="upcomingPlayerPad">
@@ -90,24 +91,17 @@ defineProps<{
         <div class="upcomingPlayersStrategyCardsContainer">
           <span v-for="(strategyCard, index) in nextPlayerStrategyCards" class="upcomingPlayerPad">
             <span v-if="nextPlayerStrategyCardPopStates[index]">{{ strategyCard }}&nbsp;(Spent)</span>
-            <span v-else>{{ strategyCard }}</span>
+            <span :class="strategyCard.toLowerCase()" v-else>{{ strategyCard }}</span>
           </span>
         </div>
       </div>
     </div>
     <div class="containerColumn containerColumnRight">
       <div class="lowerTextContainer">
+        <button @click="game.advancePhase('Status')">Advance -> Status Phase</button>
       </div>
     </div>
   </div>
-
-  <!--
-  <h2>Game Phase Transition Buttons</h2>
-  <button @click="game.undoAdvancePhase()">Back to Strategy Phase</button>
-  <button @click="game.advancePhase('Status')">Advance -> Status Phase</button>
-  <button @click="game.advancePhase('Victory')">Advance -> End Game</button>
-  <hr />
-  -->
 </template>
 
 <style scoped>
@@ -152,22 +146,31 @@ defineProps<{
   font-size: 18px;
 }
 .activePlayerContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   padding: 10vh 5px 10vh 5px;
 }
 .activePlayerContainerInner {
-  display: flex;
-  flex-direction: column;
-  align-items: left;
+  overflow: hidden;
+  position: relative;
 }
-.activePlayerContainer h1 {
+.activePlayerContainerInner h1 {
   font-size: 80px;
   line-height: 1.15;
   color: var(--vt-c-white-soft);
   font-weight: 600;
+  white-space: nowrap;
+  display: inline;
+  position: relative;
 }
+
+.marquee {
+  animation: marquee 60s ease-in-out infinite alternate;
+}
+
+@keyframes marquee {
+  0% { left: 0%; }
+  100% { left: -75%; }
+}
+
 .activePlayerContainer h2 {
   font-size: 40px;
   line-height: 1.25;
@@ -187,12 +190,14 @@ defineProps<{
   flex: 1;
   align-items: end;
   padding: 10px 20px 10px 10px;
-  color: var(--vt-c-white-soft);
   white-space: nowrap;
+}
+.upcomingUnpassedPlayerName {
+  color: var(--vt-c-white-soft);
 }
 .upcomingPlayersPassStatusesContainer {
   background-color: var(--vt-c-white-soft);
-  color: var(--vt-c-black-soft);
+  color: var(--vt-c-text-light-2);
   display: flex;
   flex-direction: column;
   flex-grow: 0;

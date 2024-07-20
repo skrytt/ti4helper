@@ -2,6 +2,7 @@
 import SetupPhase from './components/SetupPhase.vue';
 import ActionPhase from './components/ActionPhase.vue';
 import StrategyPhase from './components/StrategyPhase.vue';
+import StatusPhase from './components/StatusPhase.vue';
 import { useGameStore } from '@/stores/game';
 
 const game = useGameStore();

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useGameStore, Faction, StrategyCard } from '@/stores/game';
-import { ref } from 'vue';
 
 const game = useGameStore();
 
