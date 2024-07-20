@@ -1,39 +1,30 @@
-# ti4helper
+# TI4 Helper
 
-This template should help get you started developing with Vue 3 in Vite.
+A Twilight Imperium 4 helper app that no-one in my regular group asked for but everyone got :) My group play in-person, and the room we play in has a large television screen with a 16:9 ratio. I liked the idea of using the screen for a heads-up display of basic game information, so I made one.
 
-## Recommended IDE Setup
+This has the following design goals:
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Provide information that's useful during play and sometimes difficult to track, primarily during the Action Phase, such as the current and upcoming turns and pass statuses. 
+- Be unobtrusive: avoid distracting too much from the table. Don't serve information that the table serves clearly, such as in-play objectives, victory point tracking and so on.
+- Look clean and bold; make the active player feel big and important!
 
-## Type Support for `.vue` Imports in TS
+A secondary reason for building this was as an excuse to practice Vue 3, TypeScript and frontend web design. All bugs and bad design decisions come included; there are no automated tests or lints. I don't have plans to address this.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## Limitations
 
-## Customize configuration
+A couple of notable limitations that aren't design choices so much as "maybe I could fix this later":
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+- Does not currently account for Naalu Collective's ability or promissory note that affect action phase influence order
+- Does not currently support games where each player selects 2 or more strategy cards
+- Currently, all state is lost on a page refresh. Don't refresh the page! It would be nice to store state in cookies to avoid data loss in this scenario.
 
-## Project Setup
+## Installation and Usage
+
+You will need `pnpm` to host a development webserver:
 
 ```sh
 pnpm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
-
-```sh
-pnpm build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-pnpm lint
-```
+Then, access the app at [localhost:5173](http://localhost:5173).
